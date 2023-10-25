@@ -1,0 +1,54 @@
+name: Legalzard Bot
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  legalzard-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install legalzard
+      - name: Run Legalzard Bot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python app.py
+      - name: Create Pull Request
+        if: steps.run-legalzard-bot.outcome == 'failure'
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'Fix license compatibility issues'
+          title: 'Fix license compatibility issues'
+          body: 'Legalzard found licenses in your dependencies that are incompatible with your repository license. This pull request fixes the issues by updating the dependencies.'
+          branch: 'fix-license-compatibility-issues'
+          branch-suffix: random
+          delete-branch: true 
+          reviewers: 'legalzard-bot'
+      - name: Send Email Notification
+        if: steps.create-pull-request.outcome == 'success'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: 'New Pull Request Created'
+          body: 'A new pull request has been created for your repository. Please review it as soon as possible.'
+          from: 'Legalzard Bot <legalzard-bot@example.com>'
+          to: 'developer1@example.com, developer2@example.com'
+          tls: true
