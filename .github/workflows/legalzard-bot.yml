@@ -24,14 +24,14 @@ jobs:
           pip install legalzard
       - name: Run Legalzard Bot
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MY_SECRET }}
         run: |
           python app.py
       - name: Create Pull Request
         if: steps.run-legalzard-bot.outcome == 'failure'
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.MY_SECRET }}
           commit-message: 'Fix license compatibility issues'
           title: 'Fix license compatibility issues'
           body: 'Legalzard found licenses in your dependencies that are incompatible with your repository license. This pull request fixes the issues by updating the dependencies.'
