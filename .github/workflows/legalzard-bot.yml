@@ -22,6 +22,8 @@ jobs:
         run: |
           pip install Opensource-License-Compatibility-from-DoWell
           pip install Flask
+      - name: Install PyGithub
+        run: pip install PyGithub
       - name: Run Legalzard Bot
         env:
           GITHUB_TOKEN: ${{ secrets.MY_SECRET }}
